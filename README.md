@@ -1,9 +1,10 @@
 Data Transfer with one button
-If you have never used Add-ins, you are working slowly in Excel
 
+If you have never used Add-ins, you are working slowly in Excel
 Have you ever used add-ins in Excel? It's a useful method, but you need to know how to write code in VBA. When I started in the HR Department, I noticed that there was a lot of manual work. So I focused on learning VBA. VBA has a simple language. Do you want to learn how to write code? If not, you can use my code. But first, you should see how it works.
 In this article, I am going to show you how you can use add-ins. Because this is our first step, let's dive in.
 How to Add an Add-in in Excel
+
 Step 1: Open Excel
 Open Microsoft Excel on your computer.
 
