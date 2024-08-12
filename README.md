@@ -1,4 +1,4 @@
-Data Transfer with one button
+[DataTransfer.txt](https://github.com/user-attachments/files/16578749/DataTransfer.txt)Data Transfer with one button
 
 If you have never used Add-ins, you are working slowly in Excel
 Have you ever used add-ins in Excel? It's a useful method, but you need to know how to write code in VBA. When I started in the HR Department, I noticed that there was a lot of manual work. So I focused on learning VBA. VBA has a simple language. Do you want to learn how to write code? If not, you can use my code. But first, you should see how it works.
@@ -60,3 +60,101 @@ If you have completed all the steps, you can add a button in your Excel. Then yo
 ![image](https://github.com/user-attachments/assets/ce4be2c0-ab35-45c2-ac37-cdbe447ac75b)
 
 You can find Excel File here;
+[UploSub DataTransfer()
+    Dim kaynakWb As Workbook
+    Dim hedefWb As Workbook
+    Dim kaynakWs As Worksheet
+    Dim hedefWs As Worksheet
+    Dim kaynakLastRow As Long
+    Dim hedefLastRow As Long
+    Dim i As Long, j As Long
+    Dim kaynakFilePath As String
+    Dim colMatched As Boolean
+    Dim listeCol As Long
+    Dim dosyaAdi As String
+    Dim sheetName As String
+    Dim hedefColumns As Object
+    
+    ' Aktif olan sayfayı hedef olarak al
+    Set hedefWs = ActiveSheet
+    Set hedefWb = hedefWs.Parent
+    
+    ' Kullanıcıdan kaynak dosyayı seçmesini iste
+    kaynakFilePath = Application.GetOpenFilename("Excel Files (*.xls; *.xlsx; *.xlsm), *.xls; *.xlsx; *.xlsm", , "Kaynak dosyayı seçin")
+    If kaynakFilePath = "False" Then Exit Sub
+    
+    Set kaynakWb = Workbooks.Open(kaynakFilePath)
+    
+    ' Eğer birden fazla sheet varsa, kullanıcıdan sheet adını sor
+    If kaynakWb.Sheets.Count > 1 Then
+        sheetName = Application.InputBox("Sheet adını girin", "Sheet Seçimi", kaynakWb.Sheets(1).Name, , , , , 2)
+        On Error Resume Next
+        Set kaynakWs = kaynakWb.Sheets(sheetName)
+        On Error GoTo 0
+        If kaynakWs Is Nothing Then
+            MsgBox "Geçersiz sheet adı", vbCritical
+            kaynakWb.Close SaveChanges:=False
+            Exit Sub
+        End If
+    Else
+        Set kaynakWs = kaynakWb.Sheets(1)
+    End If
+    
+    dosyaAdi = Mid(kaynakWb.Name, 1, InStrRev(kaynakWb.Name, ".") - 1)
+    
+    kaynakLastRow = kaynakWs.Cells(kaynakWs.Rows.Count, "A").End(xlUp).Row
+    
+    ' İlk satırdaki tüm başlıkları ve onların son satırlarını belirle
+    Set hedefColumns = CreateObject("Scripting.Dictionary")
+    For j = 1 To hedefWs.Cells(1, hedefWs.Columns.Count).End(xlToLeft).Column
+        hedefColumns(hedefWs.Cells(1, j).Value) = j
+        If hedefWs.Cells(1, j).Value = "Liste" Then
+            listeCol = j
+        End If
+    Next j
+    
+    ' Eğer "Liste" kolonu yoksa, oluştur
+    If listeCol = 0 Then
+        listeCol = hedefWs.Cells(1, hedefWs.Columns.Count).End(xlToLeft).Column + 1
+        hedefWs.Cells(1, listeCol).Value = "Liste"
+    End If
+    
+    ' Her bir başlık için kaynak verilerini kopyala
+    For i = 1 To kaynakWs.Cells(1, kaynakWs.Columns.Count).End(xlToLeft).Column
+        colMatched = False
+        If Not IsEmpty(kaynakWs.Cells(1, i)) Then
+            If hedefColumns.exists(kaynakWs.Cells(1, i).Value) Then
+                colMatched = True
+                j = hedefColumns(kaynakWs.Cells(1, i).Value)
+                hedefLastRow = hedefWs.Cells(hedefWs.Rows.Count, j).End(xlUp).Row + 1
+                kaynakWs.Range(kaynakWs.Cells(2, i), kaynakWs.Cells(kaynakLastRow, i)).Copy
+                hedefWs.Cells(hedefLastRow, j).PasteSpecial Paste:=xlPasteValues
+                
+                With hedefWs.Cells(hedefLastRow, listeCol).Resize(kaynakLastRow - 1)
+                    .Value = dosyaAdi
+                End With
+                Application.CutCopyMode = False
+            End If
+        End If
+    Next i
+    
+    ' Gerekiyorsa sayısal değerleri güncelle
+    Dim toplam As Double
+    Dim sayiAdedi As Long
+    toplam = 0
+    sayiAdedi = 0
+    
+    For i = 2 To hedefWs.Cells(hedefWs.Rows.Count, "A").End(xlUp).Row
+        If IsNumeric(hedefWs.Cells(i, "A").Value) Then
+            hedefWs.Cells(i, "A").Value = hedefWs.Cells(i, "A").Value * 1
+            toplam = toplam + hedefWs.Cells(i, "A").Value
+            sayiAdedi = sayiAdedi + 1
+        End If
+    Next i
+    
+    kaynakWb.Close SaveChanges:=False
+
+End Sub
+
+ading DataTransfer.txt…]()
+
